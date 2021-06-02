@@ -1,9 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.disneystreaming.i21.TopTitlesServiceTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.252 s <<< FAILURE! - in com.disneystreaming.i21.TopTitlesServiceTest
-testInput7  Time elapsed: 0.245 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: Test case 7 ==> array contents differ at index [3], expected: <Encore!:  Grease - 1990 - Hackensack, Nj> but was: <The Imagineering Story: To Infinity and Beyond>
-	at com.disneystreaming.i21.TopTitlesServiceTest.resourceBased(TopTitlesServiceTest.java:16)
-	at com.disneystreaming.i21.TopTitlesServiceTest.testInput7(TopTitlesServiceTest.java:47)
-
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.28 s - in com.disneystreaming.i21.TopTitlesServiceTest
