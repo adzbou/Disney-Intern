@@ -52,23 +52,32 @@ final class TopTitlesService {
 
 
         String contentDataSTR = contentDataJson;
+
+        //NEw Line
+        contentDataSTR = contentDataSTR.replace("},{", "}, {");
+
         String[] contentData = contentDataSTR.split("}, \\{");
 
 
       for (int i = 0; i < contentData.length; i++){
+
+
+
 
           boolean dateFlag = false;
           boolean usFlag = false;
 
           String tempContentDataSTR =  contentData[i].toString();
           tempContentDataSTR = tempContentDataSTR.replace("}]", "");
+          tempContentDataSTR = tempContentDataSTR.replace("[{", "");
 
-
-          tempContentDataSTR = tempContentDataSTR.replace("\", \"", ", ");
+         // tempContentDataSTR = tempContentDataSTR.replace("\", \"", ", ");
 
 
           //Splits Each element of Object
-          String[] arryContentData = tempContentDataSTR.split(", ");
+          String[] arryContentData = tempContentDataSTR.split(",(?![^\\(\\[]*[\\]\\)])");
+
+          System.out.println("ARAY>>>>>>>: " + arryContentData[2]);
           ArrayList<String> contentElements = new ArrayList<String>();
 
           for (int j =0; j < arryContentData.length; j++){
@@ -114,7 +123,7 @@ final class TopTitlesService {
 
 
 
-              System.out.println(dateFlag);
+
 
               isKidsContent = Boolean.parseBoolean(contentElements.get(4).replace(" ", ""));
               System.out.println("THIS IS KIDS CONTENT " + isKidsContent);
@@ -128,10 +137,12 @@ final class TopTitlesService {
           if(dateResult <= 0){
               dateFlag = true;
           }
+          System.out.println(dateFlag);
+
 
           contentType = contentElements.get(6);
 
-          Map<String, String> brandMap = generateHashmap(brandPreferencesJson);
+          HashMap<String, String> brandMap = generateHashmap(brandPreferencesJson);
 
           if (brandMap.containsKey(brand)) {
               String brandResult = brandMap.get(brand);
@@ -149,10 +160,11 @@ final class TopTitlesService {
           }
 
 
+
           if(dateFlag && usFlag){
               arrylistPopularity.add(popularity);
               arrylistTitleNames.add(title+"<"+popularity);
-              //objectInfo.put(title, popularity);
+
           }
 
       }
@@ -198,20 +210,26 @@ final class TopTitlesService {
 
     private static HashMap<String, String> generateHashmap(String jsonFile){
         HashMap<String, String> myHashMap = new HashMap<String, String>();
-        String jsonFileSTR = jsonFile;
+        if(!jsonFile.equals("{}")) {
+            String jsonFileSTR = jsonFile;
 
-        jsonFileSTR = jsonFileSTR.replace("{", "");
-        jsonFileSTR = jsonFileSTR.replace("}", "");
-        jsonFileSTR = jsonFileSTR.replace("\"", "");
-        String[] contentPairs = jsonFileSTR.split(",");
+            System.out.println("JSON : " + jsonFile);
 
-        for (String pair1 : contentPairs) {
-            String[] keyValue1 = pair1.split(":");
+            jsonFileSTR = jsonFileSTR.replace("{", "");
+            jsonFileSTR = jsonFileSTR.replace("}", "");
+            jsonFileSTR = jsonFileSTR.replace("\"", "");
+            String[] contentPairs = jsonFileSTR.split(",");
 
-            myHashMap.put(keyValue1[0].trim(), (keyValue1[1].trim()));
+            System.out.println("ORIGINAL THINGY: " + Arrays.toString(contentPairs));
+            for (String pair1 : contentPairs) {
+                String[] keyValue1 = pair1.split(":");
 
+                System.out.println("FIRST 0" + keyValue1[0]);
+                System.out.println("FIRST 1" + keyValue1[1]);
+                myHashMap.put(keyValue1[0].trim(), (keyValue1[1].trim()));
+                System.out.println("LOLLLLLLLHAHHAHAHAHA");
+            }
         }
-
         return myHashMap;
     }
 

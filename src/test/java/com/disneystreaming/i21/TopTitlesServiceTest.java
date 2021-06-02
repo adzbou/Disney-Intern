@@ -16,10 +16,10 @@ public class TopTitlesServiceTest {
         assertArrayEquals(rd.getExpectedResult().toArray(), result.toArray(), "Test case " + testCase);
     }
 
-   @Test
-    void testInput0() throws IOException {
-        resourceBased(0);
-    }
+//   @Test
+//    void testInput0() throws IOException {
+//        resourceBased(0);
+//    }
 //
 //
 //    @Test
@@ -42,11 +42,11 @@ public class TopTitlesServiceTest {
 //        resourceBased(6);
 //    }
 //
-//    @Test
-//    void testInput7() throws IOException {
-//        resourceBased(7);
-//    }
-//
+    @Test
+    void testInput7() throws IOException {
+        resourceBased(7);
+    }
+
 //    @Test
 //    void testInput8() throws IOException {
 //        resourceBased(8);
