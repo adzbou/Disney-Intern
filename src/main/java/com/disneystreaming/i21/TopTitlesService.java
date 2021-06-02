@@ -48,9 +48,6 @@ final class TopTitlesService {
         ArrayList<Integer> arrylistPopularity = new ArrayList<>();
         ArrayList<String> arrylistTitleNames = new ArrayList<>();
 
-
-
-
         String contentDataSTR = contentDataJson;
 
         //NEw Line
@@ -59,120 +56,84 @@ final class TopTitlesService {
         String[] contentData = contentDataSTR.split("}, \\{");
 
 
-      for (int i = 0; i < contentData.length; i++){
+          for (int i = 0; i < contentData.length; i++){
 
+              boolean dateFlag = false;
+              boolean usFlag = false;
+              String tempContentDataSTR =  contentData[i].toString();
+              tempContentDataSTR = tempContentDataSTR.replace("}]", "");
+              tempContentDataSTR = tempContentDataSTR.replace("[{", "");
+              String[] arryContentData = tempContentDataSTR.split(",(?=(([^\\\"]*\\\"){2})*[^\\\"]*$)(?![^\\(\\[]*[\\]\\)])");
+              ArrayList<String> contentElements = new ArrayList<String>();
 
+              for (int j =0; j < arryContentData.length; j++){
+                  //Converts the array to a string with everything before the colon removed
+                  String removeColon = arryContentData[j].substring(arryContentData[j].indexOf(":") + 1);
+                  //Remove the white space from the front and back
+                  removeColon = removeColon.trim();
+                  removeColon = removeColon.replace("\"", "");
 
-
-          boolean dateFlag = false;
-          boolean usFlag = false;
-
-          String tempContentDataSTR =  contentData[i].toString();
-          tempContentDataSTR = tempContentDataSTR.replace("}]", "");
-          tempContentDataSTR = tempContentDataSTR.replace("[{", "");
-
-         // tempContentDataSTR = tempContentDataSTR.replace("\", \"", ", ");
-
-
-          //Splits Each element of Object
-          String[] arryContentData = tempContentDataSTR.split(",(?![^\\(\\[]*[\\]\\)])");
-
-          System.out.println("ARAY>>>>>>>: " + arryContentData[2]);
-          ArrayList<String> contentElements = new ArrayList<String>();
-
-          for (int j =0; j < arryContentData.length; j++){
-              //Converts the array to a string with everything before the colon removed
-              String removeColon = arryContentData[j].substring(arryContentData[j].indexOf(":") + 1);
-              //Remove the white space from the front and back
-              removeColon = removeColon.trim();
-              removeColon = removeColon.replace("\"", "");
-
-              //Add each element to contentElements so data can be extracted
-              contentElements.add(removeColon);
-          }
-
-
-          title = contentElements.get(0);
-          brand = contentElements.get(1);
-
-
-          availability = contentElements.get(2);
-          availability = availability.replace("[ ]\"", "");
-          String[] arryAvailability = availability.split(",");
-
-          for (String s : arryAvailability) {
-              if (s.contains("US")) {
-
-                  System.out.println(s);
-                  usFlag = true;
-                  System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" + usFlag);
+                  //Add each element to contentElements so data can be extracted
+                  contentElements.add(removeColon);
               }
-          }
+
+              title = contentElements.get(0);
+              brand = contentElements.get(1);
+              availability = contentElements.get(2);
+              availability = availability.replace("[ ]\"", "");
+              String[] arryAvailability = availability.split(",");
+
+              for (String s : arryAvailability) {
+                  if (s.contains("US")) {
+                      usFlag = true;
+                  }
+              }
 
 
-          String availableDateSTR = contentElements.get(3);
-          availableDateSTR = availableDateSTR.split("T")[0];
-          System.out.println("LALALALLALALALALALALLALA>" + availableDateSTR + "<");
+              String availableDateSTR = contentElements.get(3);
+              availableDateSTR = availableDateSTR.split("T")[0];
 
-          try{
+              try{
+                  givenDate = availableDate.parse(availableDateSTR);
+                  requiredDate = availableDate.parse("2020-01-01");
+                  dateResult = givenDate.compareTo(requiredDate);
+                  isKidsContent = Boolean.parseBoolean(contentElements.get(4).replace(" ", ""));
+                  //Attempt to take the 5th index (Popularity score) from the ArrayList and typecast it to int
+                  popularity = Integer.parseInt(contentElements.get(5).replace(" ", ""));
+              }
+              catch (Exception e){
+                  System.out.println(e);
+              }
 
-              givenDate = availableDate.parse(availableDateSTR);
-              requiredDate = availableDate.parse("2020-01-01");
-              dateResult = givenDate.compareTo(requiredDate);
-              System.out.println("OMGGGGGGGG" + dateResult);
-
-
-
-
-
-              isKidsContent = Boolean.parseBoolean(contentElements.get(4).replace(" ", ""));
-              System.out.println("THIS IS KIDS CONTENT " + isKidsContent);
-              //Attempt to take the 5th index (Popularity score) from the ArrayList and typecast it to int
-              popularity = Integer.parseInt(contentElements.get(5).replace(" ", ""));
-          }
-          catch (Exception e){
-              System.out.println(e);
-          }
-
-          if(dateResult <= 0){
-              dateFlag = true;
-          }
-          System.out.println(dateFlag);
+              if(dateResult <= 0){
+                  dateFlag = true;
+              }
 
 
-          contentType = contentElements.get(6);
+              contentType = contentElements.get(6);
 
-          HashMap<String, String> brandMap = generateHashmap(brandPreferencesJson);
+              HashMap<String, String> brandMap = generateHashmap(brandPreferencesJson);
+              HashMap<String, String> contentTypeMap = generateHashmap(contentTypePreferencesJson);
 
-          if (brandMap.containsKey(brand)) {
-              String brandResult = brandMap.get(brand);
+              if (brandMap.containsKey(brand)) {
+                  String brandResult = brandMap.get(brand);
 
-              popularity = switchCasePopularity(dislike, indifferent, like, adore, love, popularity, brandResult);
-          }
+                  popularity = switchCasePopularity(dislike, indifferent, like, adore, love, popularity, brandResult);
+              }
 
-          HashMap<String, String> contentTypeMap = generateHashmap(contentTypePreferencesJson);
+              if (contentTypeMap.containsKey(contentType)) {
+                  String contentTypeResult = contentTypeMap.get(contentType);
+                  popularity = switchCasePopularity(dislike, indifferent, like, adore, love, popularity, contentTypeResult);
+              }
 
-
-
-          if (contentTypeMap.containsKey(contentType)) {
-              String contentTypeResult = contentTypeMap.get(contentType);
-              popularity = switchCasePopularity(dislike, indifferent, like, adore, love, popularity, contentTypeResult);
-          }
-
-
-
-          if(dateFlag && usFlag){
-              arrylistPopularity.add(popularity);
-              arrylistTitleNames.add(title+"<"+popularity);
+              if(dateFlag && usFlag){
+                  arrylistPopularity.add(popularity);
+                  arrylistTitleNames.add(title+"<"+popularity);
+              }
 
           }
-
-      }
         Collections.sort(arrylistPopularity, Collections.reverseOrder());
         Collections.sort(arrylistTitleNames);
-
-        System.out.println("FUCKKKKKKKKK "+ arrylistTitleNames);
-
 
         ArrayList<String> finalNames = new ArrayList<String>();
         int finalSize = 0;
@@ -184,26 +145,15 @@ final class TopTitlesService {
 
         for (int x =0; x < finalSize; x++){
 
-            System.out.println(arrylistPopularity.get(x));
-
             for(String names: arrylistTitleNames){
 
                 if (names.contains(String.valueOf(arrylistPopularity.get(x)))){
                     finalNames.add(names.split("<")[0]);
                 }
-
             }
-
-
-
-
-
         }
 
-
-        System.out.println("THIS IS IT !!!!!!! " + finalNames);
         return finalNames;
-        //return myArrayList;
     }
 
 
@@ -212,22 +162,14 @@ final class TopTitlesService {
         HashMap<String, String> myHashMap = new HashMap<String, String>();
         if(!jsonFile.equals("{}")) {
             String jsonFileSTR = jsonFile;
-
-            System.out.println("JSON : " + jsonFile);
-
             jsonFileSTR = jsonFileSTR.replace("{", "");
             jsonFileSTR = jsonFileSTR.replace("}", "");
             jsonFileSTR = jsonFileSTR.replace("\"", "");
             String[] contentPairs = jsonFileSTR.split(",");
-
-            System.out.println("ORIGINAL THINGY: " + Arrays.toString(contentPairs));
             for (String pair1 : contentPairs) {
                 String[] keyValue1 = pair1.split(":");
-
-                System.out.println("FIRST 0" + keyValue1[0]);
-                System.out.println("FIRST 1" + keyValue1[1]);
                 myHashMap.put(keyValue1[0].trim(), (keyValue1[1].trim()));
-                System.out.println("LOLLLLLLLHAHHAHAHAHA");
+
             }
         }
         return myHashMap;
@@ -237,7 +179,6 @@ final class TopTitlesService {
         switch (stringToCheck) {
             case "dislike":
                 popularity += dislike;
-
                 break;
 
             case "indifferent":
@@ -246,7 +187,6 @@ final class TopTitlesService {
 
             case "like":
                 popularity += like;
-
                 break;
 
             case "adore":
@@ -261,7 +201,6 @@ final class TopTitlesService {
         }
         return popularity;
     }
-
 }
 
 
